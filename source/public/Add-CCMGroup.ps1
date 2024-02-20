@@ -35,29 +35,80 @@ function Add-CCMGroup {
         }
     }
     process {
-        # IGNORE: Check if a group already exists?
+        # Check if a group already exists?
+        if ($Group = Get-CCMGroup -Name $GroupName -ErrorAction SilentlyContinue) {
+            return $Group
+        }
         # If it does exist, do we want to update values or just exit?
         # If it doesn't exist, create it!
         $GroupArgs = @{
             name = $GroupName
+            #description = $Description
+            # groups = @(
+            #   @{
+            #     groupId = 0
+            #     subGroupId = 0
+            #     subGroupName = "string"
+            #     subGroupDescription = "string"
+            #     isEligibleForDeployments = $true
+            #     id = 0
+            #   }
+            # )
+            # computers = @(
+            #   @{
+            #     computerId = 0
+            #     groupId = 0
+            #     computerName = "string"
+            #     displayName = "string"
+            #     friendlyName = "string"
+            #     ipAddress = "string"
+            #     availableForDeploymentsBasedOnLicenseCount = $true
+            #     optedIntoDeploymentBasedOnConfig = $true
+            #     groupName = "string"
+            #     id = 0
+            #   }
+            # )
+            # isEligibleForDeployments = $true
+            # ineligibleComputers = @(
+            #   @{
+            #     computerId = 0
+            #     groupId = 0
+            #     computerName = "string"
+            #     displayName = "string"
+            #     friendlyName = "string"
+            #     ipAddress = "string"
+            #     availableForDeploymentsBasedOnLicenseCount = $true
+            #     optedIntoDeploymentBasedOnConfig = $true
+            #     groupName = "string"
+            #     id = 0
+            #   }
+            # )
+            # optedOutComputers = @(
+            #   @{
+            #     computerId = 0
+            #     groupId = 0
+            #     computerName = "string"
+            #     displayName = "string"
+            #     friendlyName = "string"
+            #     ipAddress = "string"
+            #     availableForDeploymentsBasedOnLicenseCount = $true
+            #     optedIntoDeploymentBasedOnConfig = $true
+            #     groupName = "string"
+            #     id = 0
+            #   }
+            # )
         }
 
         if ($Description) {
             $GroupArgs.Description = $Description
         }
 
-        <# $script:CCMServerInfo
-            Session 
-            Hostname
-            Protocol
-        #>
-
         $RestArgs = @{
-            Uri                  = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
-            Body                 = $GroupArgs | ConvertTo-Json
-            ContentType          = "application/json"
-            Method               = "POST"
-            WebSession           = $Script:CcmServerInfo.Session
+            Uri = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
+            Body = $GroupArgs | ConvertTo-Json
+            ContentType = "application/json"
+            Method = "POST"
+            WebSession = $Script:CcmServerInfo.Session
             # Remove very bad, NO!!!
             SkipCertificateCheck = $true
         }
@@ -69,10 +120,12 @@ function Add-CCMGroup {
             } else {
                 Write-Error "The group $($GroupName) failed to be created." -ErrorAction Stop
             }
-        } catch {
+        }
+        catch {
             throw
         }
 
-        # Output the group! Call Get-Group as part of this
+        # Output the group!
+        Get-CCMGroup -Name $GroupName
     }
 }

@@ -1,11 +1,11 @@
 function New-CCMDeploymentPlan {
     [Cmdletbinding()]
     Param(
-        [paramter(Mandatory)]
+        [parameter(Mandatory)]
         [string]
         $PlanTitle,
 
-        [paramter(Mandatory)]
+        [parameter(Mandatory)]
         [PSCustomObject]
         $Step,
     
