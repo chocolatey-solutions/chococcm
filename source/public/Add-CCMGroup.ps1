@@ -18,15 +18,15 @@ function Add-CCMGroup {
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [String]
-        $Description  #,
+        $Description,
 
         # [Parameter()]
         # [String[]]
         # $MemberComputer,
         
-        # [Parameter()]
-        # [String[]]
-        # $MemberGroup,
+        [Parameter()]
+        [String[]]
+        $MemberGroup
     )
     begin {
         if (-not $Script:CcmServerInfo) {
@@ -43,65 +43,38 @@ function Add-CCMGroup {
         # If it doesn't exist, create it!
         $GroupArgs = @{
             name = $GroupName
-            #description = $Description
-            # groups = @(
-            #   @{
-            #     groupId = 0
-            #     subGroupId = 0
-            #     subGroupName = "string"
-            #     subGroupDescription = "string"
-            #     isEligibleForDeployments = $true
-            #     id = 0
-            #   }
-            # )
-            # computers = @(
-            #   @{
-            #     computerId = 0
-            #     groupId = 0
-            #     computerName = "string"
-            #     displayName = "string"
-            #     friendlyName = "string"
-            #     ipAddress = "string"
-            #     availableForDeploymentsBasedOnLicenseCount = $true
-            #     optedIntoDeploymentBasedOnConfig = $true
-            #     groupName = "string"
-            #     id = 0
-            #   }
-            # )
-            # isEligibleForDeployments = $true
-            # ineligibleComputers = @(
-            #   @{
-            #     computerId = 0
-            #     groupId = 0
-            #     computerName = "string"
-            #     displayName = "string"
-            #     friendlyName = "string"
-            #     ipAddress = "string"
-            #     availableForDeploymentsBasedOnLicenseCount = $true
-            #     optedIntoDeploymentBasedOnConfig = $true
-            #     groupName = "string"
-            #     id = 0
-            #   }
-            # )
-            # optedOutComputers = @(
-            #   @{
-            #     computerId = 0
-            #     groupId = 0
-            #     computerName = "string"
-            #     displayName = "string"
-            #     friendlyName = "string"
-            #     ipAddress = "string"
-            #     availableForDeploymentsBasedOnLicenseCount = $true
-            #     optedIntoDeploymentBasedOnConfig = $true
-            #     groupName = "string"
-            #     id = 0
-            #   }
-            # )
         }
 
         if ($Description) {
             $GroupArgs.Description = $Description
         }
+
+        if ($MemberGroup) {
+            $GroupArgs.groups = @(
+                foreach ($Group in Get-CCMGroup -Name $MemberGroup) {
+                    @{
+                        subGroupId = $Group.id
+                    }
+                }
+            )
+        }
+
+        # if ($MemberComputer) {
+        #     $GroupArgs.computers = @(
+        #         @{
+        #             computerId                                 = 0  # Maybe just need this ID, nothing else?
+        #             groupId                                    = 0
+        #             computerName                               = "string"
+        #             displayName                                = "string"
+        #             friendlyName                               = "string"
+        #             ipAddress                                  = "string"
+        #             availableForDeploymentsBasedOnLicenseCount = $true
+        #             optedIntoDeploymentBasedOnConfig           = $true
+        #             groupName                                  = "string"
+        #             id                                         = 0
+        #         }
+        #     )
+        # }
 
         $RestArgs = @{
             Uri = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
