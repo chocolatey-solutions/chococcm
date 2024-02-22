@@ -7,8 +7,9 @@ function Get-CCMComputer {
 
         [Parameter(ParameterSetName = "Default")]
         [Parameter(ParameterSetName = "Name")]
-        [switch]
+        [string]
         $Detailed
+        
     )
     begin {
         if (-not $Script:CcmServerInfo) {
@@ -18,19 +19,19 @@ function Get-CCMComputer {
     }
     process {
         $params = @{
-            Uri        = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Computers/GetAll"
-            Method     = 'GET'
-            WebSession = $Script:CcmServerInfo.Session
-        }
+            Uri = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Computers/GetAll"
+                    Method     = 'GET'
+                    WebSession = $Script:CcmServerInfo.Session
+                }
 
         $ComputerList = Invoke-RestMethod @params
-
+                $ComputerList
         switch ($PSCmdlet.ParameterSetName) {
             "Name" {
-                # Just get the ID of the computer specified
+                #Just get the ID of the computer specified
                 $ComputerId = $ComputerList.result | Where-Object { $_.name -eq $ComputerName } | Select-Object -ExpandProperty id
 
-                # Get generic computer metadata 
+                #Get generic computer metadata 
                 $RestArgs = @{
                     Uri        = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Computers/GetComputerForView?id=$ComputerId"
                     Method     = "GET"
@@ -39,28 +40,27 @@ function Get-CCMComputer {
 
                 $ComputerMetaData = (Invoke-RestMethod @RestArgs).result
 
-                if (-not $Detailed) {
-                    $ComputerMetaData | Select-Object -Property @(
-                        'Name'
-                        'FriendlyName'
-                        'ComputerGuid'
-                        'DisplayName'
-                        'IpAddress'
-                        'Fqdn'
-                        'LastCheckinDateTime'
-                        'creationTime'
-                        'ccmServiceName'
-                        @{Name = 'EligibleForDeployments'; Expression = { $_.availableForDeploymentsBasedOnLicenseCount } }
-                        @{Name = 'OptedIntoDeployments'; Expression = { $_.optedIntoDeploymentsBasedOnConfig } }
-                    )
-                }
-                else {
+                if(-not $Detailed){
+                    $properties = @('Name'
+                    'FriendlyName',
+                    'ComputerGuid',
+                    'DisplayName',
+                    'IpAddress',
+                    'Fqdn',
+                    'LastCheckinDateTime',
+                    'creationTime',
+                    'ccmServiceName',
+                    @{N='EligibleForDeployments';E={$_.availableForDeploymentsBasedOnLicenseCount}},
+                    @{N='OptedIntoDeployments';E={$_.optedIntoDeploymentsBasedOnConfig}})
+                    $ComputerMetaData | Select-Object $properties
+                } else {
                     return $ComputerMetaData
                 }
-            }
+            } 
             "Default" {
-                return $ComputerList.result
+
             }
         }
     }
+
 }

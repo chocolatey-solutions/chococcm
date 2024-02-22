@@ -54,6 +54,30 @@ function Add-CCMGroup {
         # If it doesn't exist, create it!
         $GroupArgs = @{
             name = $GroupName
+            # groups = @(
+            #   @{
+            #     groupId = 0
+            #     subGroupId = 0
+            #     subGroupName = "string"
+            #     subGroupDescription = "string"
+            #     isEligibleForDeployments = $true
+            #     id = 0
+            #   }
+            # )
+            # computers = @(
+            #   @{
+            #     computerId = 0
+            #     groupId = 0
+            #     computerName = "string"
+            #     displayName = "string"
+            #     friendlyName = "string"
+            #     ipAddress = "string"
+            #     availableForDeploymentsBasedOnLicenseCount = $true
+            #     optedIntoDeploymentBasedOnConfig = $true
+            #     groupName = "string"
+            #     id = 0
+            #   }
+            # )
         }
 
         if ($Description) {
@@ -61,23 +85,18 @@ function Add-CCMGroup {
         }
 
         if ($MemberGroup) {
-            $GroupArgs.groups = @(
-                foreach ($Group in Get-CCMGroup -Name $MemberGroup) {
+            $GroupArgs.Groups = foreach ($Group in $MemberGroup) {
+                Get-CCMGroup -GroupName $Group | ForEach-Object {
                     @{
-                        subGroupId = $Group.id
+                        groupId = $_.
+                        subGroupId = $_.groupId
+                        subGroupName = $_.groupName
+                        subGroupDescription = "string"
+                        isEligibleForDeployments = $true
+                        id = 0
                     }
                 }
-            )
-        }
-
-        if ($MemberComputer) {
-            $GroupArgs.computers = @(
-                foreach ($Computer in Get-CCMComputer | Where-Object name -in $MemberComputer) {
-                    @{
-                        computerId = $Computer.id
-                    }
-                }
-            )
+            }
         }
 
         $RestArgs = @{
