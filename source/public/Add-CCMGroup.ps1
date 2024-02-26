@@ -85,18 +85,23 @@ function Add-CCMGroup {
         }
 
         if ($MemberGroup) {
-            $GroupArgs.Groups = foreach ($Group in $MemberGroup) {
-                Get-CCMGroup -GroupName $Group | ForEach-Object {
+            $GroupArgs.groups = @(
+                foreach ($Group in Get-CCMGroup -Name $MemberGroup) {
                     @{
-                        groupId = $_.
-                        subGroupId = $_.groupId
-                        subGroupName = $_.groupName
-                        subGroupDescription = "string"
-                        isEligibleForDeployments = $true
-                        id = 0
+                        subGroupId = $Group.id
                     }
                 }
-            }
+            )
+        }
+
+        if ($MemberComputer) {
+            $GroupArgs.computers = @(
+                foreach ($Computer in Get-CCMComputer | Where-Object name -in $MemberComputer) {
+                    @{
+                        computerId = $Computer.id
+                    }
+                }
+            )
         }
 
         $RestArgs = @{
