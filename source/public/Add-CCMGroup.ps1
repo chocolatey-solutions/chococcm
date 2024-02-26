@@ -20,9 +20,20 @@ function Add-CCMGroup {
         [String]
         $Description,
 
-        # [Parameter()]
-        # [String[]]
-        # $MemberComputer,
+        [Parameter()]
+        [ArgumentCompleter({
+            param($a1,$a2,$MatchParam,$a4,$a5)
+            (Get-CCMComputer).Where{$_.name -like "*$MatchParam*"}.ForEach{
+                [System.Management.Automation.CompletionResult]::new(
+                    $_.name,
+                    $_.name,
+                    'ParameterValue',
+                    $(if ($_.friendlyName) {$_.friendlyName} else {$_.displayName})
+                )
+            }
+        })]
+        [String[]]
+        $MemberComputer,
         
         [Parameter()]
         [String[]]
@@ -59,29 +70,22 @@ function Add-CCMGroup {
             )
         }
 
-        # if ($MemberComputer) {
-        #     $GroupArgs.computers = @(
-        #         @{
-        #             computerId                                 = 0  # Maybe just need this ID, nothing else?
-        #             groupId                                    = 0
-        #             computerName                               = "string"
-        #             displayName                                = "string"
-        #             friendlyName                               = "string"
-        #             ipAddress                                  = "string"
-        #             availableForDeploymentsBasedOnLicenseCount = $true
-        #             optedIntoDeploymentBasedOnConfig           = $true
-        #             groupName                                  = "string"
-        #             id                                         = 0
-        #         }
-        #     )
-        # }
+        if ($MemberComputer) {
+            $GroupArgs.computers = @(
+                foreach ($Computer in Get-CCMComputer | Where-Object name -in $MemberComputer) {
+                    @{
+                        computerId = $Computer.id
+                    }
+                }
+            )
+        }
 
         $RestArgs = @{
-            Uri = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
-            Body = $GroupArgs | ConvertTo-Json
-            ContentType = "application/json"
-            Method = "POST"
-            WebSession = $Script:CcmServerInfo.Session
+            Uri                  = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
+            Body                 = $GroupArgs | ConvertTo-Json
+            ContentType          = "application/json"
+            Method               = "POST"
+            WebSession           = $Script:CcmServerInfo.Session
             # Remove very bad, NO!!!
             SkipCertificateCheck = $true
         }
@@ -90,7 +94,8 @@ function Add-CCMGroup {
             $GroupResult = Invoke-RestMethod @RestArgs
             if ($GroupResult.success) {
                 Write-Host "The group $($GroupName) was created successfully!" -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Error "The group $($GroupName) failed to be created." -ErrorAction Stop
             }
         }
