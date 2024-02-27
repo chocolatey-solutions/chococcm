@@ -22,16 +22,16 @@ function Add-CCMGroup {
 
         [Parameter()]
         [ArgumentCompleter({
-            param($a1,$a2,$MatchParam,$a4,$a5)
-            (Get-CCMComputer).Where{$_.name -like "*$MatchParam*"}.ForEach{
-                [System.Management.Automation.CompletionResult]::new(
-                    $_.name,
-                    $_.name,
-                    'ParameterValue',
-                    $(if ($_.friendlyName) {$_.friendlyName} else {$_.displayName})
-                )
-            }
-        })]
+                param($a1, $a2, $MatchParam, $a4, $a5)
+            (Get-CCMComputer).Where{ $_.name -like "*$MatchParam*" }.ForEach{
+                    [System.Management.Automation.CompletionResult]::new(
+                        $_.name,
+                        $_.name,
+                        'ParameterValue',
+                        $(if ($_.friendlyName) { $_.friendlyName } else { $_.displayName })
+                    )
+                }
+            })]
         [String[]]
         $MemberComputer,
         
@@ -54,30 +54,6 @@ function Add-CCMGroup {
         # If it doesn't exist, create it!
         $GroupArgs = @{
             name = $GroupName
-            # groups = @(
-            #   @{
-            #     groupId = 0
-            #     subGroupId = 0
-            #     subGroupName = "string"
-            #     subGroupDescription = "string"
-            #     isEligibleForDeployments = $true
-            #     id = 0
-            #   }
-            # )
-            # computers = @(
-            #   @{
-            #     computerId = 0
-            #     groupId = 0
-            #     computerName = "string"
-            #     displayName = "string"
-            #     friendlyName = "string"
-            #     ipAddress = "string"
-            #     availableForDeploymentsBasedOnLicenseCount = $true
-            #     optedIntoDeploymentBasedOnConfig = $true
-            #     groupName = "string"
-            #     id = 0
-            #   }
-            # )
         }
 
         if ($Description) {
