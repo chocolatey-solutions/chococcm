@@ -16,4 +16,4 @@ param(
     [switch]$PassThru
 )
 
-Build-Module @PSBoundParameters
+Build-Module -SemVer $SemVer -Passthru:$PassThru
