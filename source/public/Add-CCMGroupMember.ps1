@@ -14,15 +14,8 @@ function Add-CCMGroupMember {
         $MemberGroup
     )
     begin {
-        if (-not $Script:CcmServerInfo) {
-            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance.'
-            Connect-CCMServer
-        }
-
         $computercollection = [System.Collections.Generic.List[hashtable]]::new()
-
         $groupcollection = [System.Collections.Generic.List[hashtable]]::new()
-
     }
     process {
         $AllComputers = Get-CCMComputer

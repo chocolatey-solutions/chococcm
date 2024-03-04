@@ -39,12 +39,7 @@ function Add-CCMGroup {
         [String[]]
         $MemberGroup
     )
-    begin {
-        if (-not $Script:CcmServerInfo) {
-            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance.'
-            Connect-CCMServer
-        }
-    }
+
     process {
         # Check if a group already exists?
         if ($Group = Get-CCMGroup -Name $GroupName -ErrorAction SilentlyContinue) {
@@ -80,24 +75,8 @@ function Add-CCMGroup {
             )
         }
 
-        $RestArgs = @{
-            Uri                  = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/Groups/CreateOrEdit"
-            Body                 = $GroupArgs | ConvertTo-Json
-            ContentType          = "application/json"
-            Method               = "POST"
-            WebSession           = $Script:CcmServerInfo.Session
-            # Remove very bad, NO!!!
-            SkipCertificateCheck = $true
-        }
-
         try {
-            $GroupResult = Invoke-RestMethod @RestArgs
-            if ($GroupResult.success) {
-                Write-Host "The group $($GroupName) was created successfully!" -ForegroundColor Green
-            }
-            else {
-                Write-Error "The group $($GroupName) failed to be created." -ErrorAction Stop
-            }
+            $null = Invoke-CCMApi -Slug "Groups/CreateOrEdit" -Body $GroupArgs -Method "POST"
         }
         catch {
             throw

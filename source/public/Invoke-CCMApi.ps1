@@ -8,7 +8,15 @@ function Invoke-CCMApi {
 
         [Parameter()]
         [Microsoft.PowerShell.Commands.WebRequestMethod]
-        $Method = "GET"
+        $Method = "GET",
+
+        [Parameter()]
+        [PSCustomObject]
+        $Body,
+
+        [Parameter()]
+        [string]
+        $ContentType = 'application/json'
     )
     begin {
         if (-not $Script:CcmServerInfo) {
@@ -18,10 +26,15 @@ function Invoke-CCMApi {
     }
     end {
         $params = @{
-            Uri        = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/$($Slug)"
+            Uri        = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/$($Slug.TrimStart('/api/services/app/'))"
             Method     = $Method
             WebSession = $Script:CcmServerInfo.Session
             SkipCertificateCheck = $true  # TODO: Remove this later
+        }
+
+        if ($Body -and $ContentType -eq 'application/json') {
+            $params['ContentType'] = $ContentType
+            $params['Body'] = $Body | ConvertTo-Json -Depth 5
         }
 
         try {

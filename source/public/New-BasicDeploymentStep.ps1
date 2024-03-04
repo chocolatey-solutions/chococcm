@@ -29,14 +29,6 @@ function New-BasicDeploymentStep {
         $Prerelease
     )
 
-
-    begin {
-        if (-not $Script:CcmServerInfo) {
-            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance. Please run Connect-CCMServer first.'
-        }
-    
-    }
-
     process {
         [PSCustomObject]@{
             Name      = $StepTitle

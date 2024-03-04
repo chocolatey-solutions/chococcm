@@ -15,24 +15,13 @@ function New-CCMDeploymentPlan {
 
     )
 
-    begin {
-        if (-not $Script:CcmServerInfo) {
-            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance. Please run Connect-CCMServer first.'
-        }
-    }
-
     process {
         #CreateDeplyomentPlan
-        $params = @{
-            Uri         = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/DeploymentPlans/CreateorEdit"
-            ContentType = "application/json"
-            Method      = "POST"
-            WebSession  = $Script:CcmServerInfo.Session
-            Body        = @{name = $PlanTitle } | ConvertTo-Json
+        $Deployment = Invoke-CCMApi -Slug "DeploymentPlans/CreateorEdit" -Method POST -Body @{
+            name = $PlanTitle
         }
-        $Deployment = Invoke-RestMethod @params
 
-        #Add a step to the plan for each deplyoment step
+        #Add a step to the plan for each deployment step
         $X = 1
 
         foreach ($s in $step) {
@@ -43,20 +32,12 @@ function New-CCMDeploymentPlan {
                 #Fetch the group data for the Deployment.
                 #Get the ID of the group via CCM API
                 $s.TargetGroup | ForEach-Object {
-                    $params = @{
-                        Uri        = "$($CcmConnection['protocol'])://$($CcmConnection['CcmHost'])/api/services/app/Groups/GetAll"
-                        Method     = "GET"
-                        WebSession = $CcmConnection['Session']
-                    }
-                    
-                    $GroupData = Invoke-RestMethod @params |
-                    Select-Object -ExpandProperty result |
-                    Where-Object Name -eq $_ | Select-Object Name, ID, Description
+                    $GroupData = Get-CCMGroup -Name $_
 
                     $Groups.Add(@{groupId = $GroupData.Id; groupName = $GroupData.Name })
                 }
 
-                $Body = @{
+                $null = Invoke-CCMApi -Method "Post" -Slug "DeploymentSteps/CreateorEdit" -Body @{
                     planOrder                      = $X
                     deploymentPlanId               = $Deployment.ID
                     name                           = $s.StepTitle
@@ -68,34 +49,16 @@ function New-CCMDeploymentPlan {
                     deploymentStepGroups           = @($groups)
                     # Syntax for basic Deployment Steps is "<ChocoCommand>|<PackageId>|<PackageVersion>|<PreRelease>"
                     Script                         = '{0}|{1}|{2}|{3}' -f $s.Command, $s.PackageId, $s.PackageVersion, $s.PreRelease
-                } | ConvertTo-Json
-
-                $params = @{
-                    Uri         = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/DeploymentSteps/CreateorEdit"
-                    ContentType = "application/json"
-                    Method      = "POST"
-                    WebSession  = $Script:CcmServerInfo.Session
-                    Body        = $Body
                 }
-                $null = Invoke-RestMethod @params
             }
             else {
                 $s.TargetGroup | ForEach-Object {
-                    $params = @{
-                        Uri        = "$($CcmConnection['protocol'])://$($CcmConnection['CcmHost'])/api/services/app/Groups/GetAll"
-                        Method     = "GET"
-                        WebSession = $CcmConnection['Session']
-                    }
-                    
-                    $GroupData = Invoke-RestMethod @params |
-                    Select-Object -ExpandProperty result |
-                    Where-Object Name -eq $_ | Select-Object Name, ID, Description
+                    $GroupData = Get-CCMGroup -Name $_
 
                     $Groups.Add(@{groupId = $GroupData.Id; groupName = $GroupData.Name })
-                
                 }
 
-                $Body = @{
+                $null = Invoke-CCMApi -Method "POST" -Slug "DeploymentSteps/CreateorEditPrivileged" -Body @{
                     planOrder                      = $X
                     deploymentPlanId               = $Deployment.ID
                     name                           = $s.StepTitle
@@ -106,41 +69,22 @@ function New-CCMDeploymentPlan {
                     requireSuccessOnAllComputers   = $false
                     deploymentStepGroups           = @($groups)
                     Script                         = $($s.Script.ToString())
-                } | ConvertTo-Json
-
-                $params = @{
-                    Uri         = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/DeploymentSteps/CreateorEditPrivileged"
-                    ContentType = "application/json"
-                    Method      = "POST"
-                    WebSession  = $Script:CcmServerInfo.Session
-                    Body        = $Body
                 }
-                $null = Invoke-RestMethod @params
             }
-        #Increment Plan Order
-        $X++
+            #Increment Plan Order
+            $X++
         }
         #RunNow or not?
-        if ($RunNow){
+        if ($RunNow) {
             #Move Deployment Plan to Ready
-            $params = @{
-                Uri         = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/DeploymentPlans/MoveToReady"
-                ContentType = "application/json"
-                Method      = "POST"
-                WebSession  = $Script:CcmServerInfo.Session
-                Body        = @{id = $Deployment.Id} | ConvertTo-Json
-            } 
-            $null = Invoke-RestMethod @params
+            $null = Invoke-CCMApi -Method "POST" -Slug "DeploymentPlans/MoveToReady" -Body @{
+                id = $Deployment.Id
+            }
 
             #Start Deployment Plan
-            $params = @{
-                Uri         = "$($Script:CcmServerInfo.Protocol)://$($Script:CcmServerInfo.Hostname)/api/services/app/DeploymentPlans/Start"
-                ContentType = "application/json"
-                Method      = "POST"
-                WebSession  = $Script:CcmServerInfo.Session
-                Body        = @{id = $Deployment.Id} | ConvertTo-Json
-            } 
-            $null = Invoke-RestMethod @params
+            $null = Invoke-CCMApi -Method "POST" -Slug "DeploymentPlans/Start" -Body @{
+                id = $Deployment.Id
+            }
         }
     }
 }
