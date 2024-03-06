@@ -30,6 +30,7 @@ function Invoke-CCMApi {
             Method     = $Method
             WebSession = $Script:CcmServerInfo.Session
             SkipCertificateCheck = $true  # TODO: Remove this later
+            Verbose = $false
         }
 
         if ($Body -and $ContentType -eq 'application/json') {
