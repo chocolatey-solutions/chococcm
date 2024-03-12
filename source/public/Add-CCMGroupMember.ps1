@@ -19,9 +19,16 @@ function Add-CCMGroupMember {
     }
     process {
         $AllComputers = Get-CCMComputer
+        $AllGroups = Get-CCMGroup
         
-        $Group = Get-CCMGroup -Name $GroupName
-        $Id = $Group.id
+        try {
+            #Get the ID of $GroupName we are passing to edit
+            $Id = Get-CCMGroup -Name $GroupName -ErrorAction Stop | Select-Object -ExpandProperty Id
+        }
+        catch {
+            throw "Group $GroupName does not exist! Please use Add-CCMGroup instead."
+        }
+
 
         #Get current computers in CCM
         foreach ($m in $MemberComputer) {
@@ -38,5 +45,27 @@ function Add-CCMGroupMember {
         }
 
         #Get current groups in CCM
+        foreach ($g in $MemberGroup) {
+            if ($g -in $AllGroups.Name) {
+                $X = @{
+                    subGroupId = $AllGroups | Where-Object Name -eq $g | Select-Object -ExpandProperty Id
+                }
+
+                $groupcollection.add($X)
+            }
+            else {
+                Write-Warning "Group $g does not exist within Chocolatey Central Management."
+            }
+        }
+
+        #Generate Body to send to API
+        $body = [PSCustomObject]@{
+            name = $GroupName
+            id = $Id
+            groups = $groupcollection
+            computers = $computercollection
+        }
+
+        $null = Invoke-CCMApi -Method "POST" -Slug "Groups/CreateOrEdit" -Body $body
     }#process
 }
