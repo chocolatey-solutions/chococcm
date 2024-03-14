@@ -24,14 +24,15 @@ function Get-CCMComputer {
                 if (-not $Detailed) {
                     $ComputerMetaData | Select-Object -Property @(
                         'Name'
+                        'Id'
                         'FriendlyName'
                         'ComputerGuid'
                         'DisplayName'
                         'IpAddress'
                         'Fqdn'
                         'LastCheckinDateTime'
-                        'creationTime'
-                        'ccmServiceName'
+                        'CreationTime'
+                        'CcmServiceName'
                         @{Name = 'EligibleForDeployments'; Expression = { $_.availableForDeploymentsBasedOnLicenseCount } }
                         @{Name = 'OptedIntoDeployments'; Expression = { $_.optedIntoDeploymentsBasedOnConfig } }
                     )
