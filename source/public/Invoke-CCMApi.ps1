@@ -1,5 +1,5 @@
 function Invoke-CCMApi {
-    [CmdLEtBinding()]
+    [CmdletBinding()]
 
     Param(
         [Parameter(Mandatory, Position=0)]
@@ -11,7 +11,6 @@ function Invoke-CCMApi {
         $Method = "GET",
 
         [Parameter()]
-        [PSCustomObject]
         $Body,
 
         [Parameter()]
