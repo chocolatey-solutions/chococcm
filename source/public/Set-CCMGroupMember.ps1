@@ -1,4 +1,4 @@
-function Add-CCMGroupMember {
+function Set-CCMGroupMember {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
@@ -18,10 +18,6 @@ function Add-CCMGroupMember {
         $groupcollection = [System.Collections.Generic.List[hashtable]]::new()
     }
     process {
-        <# THIS IS NOT CORRECT, DO NOT TRUST IT #>
-        throw "This function needs to be reimplemented as Add"
-        # We should reimplement this as an actual "add" method using the Groups/GetGroupForEdit?Id=$Id call.
-
         $AllComputers = Get-CCMComputer
         $AllGroups = Get-CCMGroup
         
