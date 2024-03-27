@@ -7,6 +7,11 @@ function Get-CCMUser {
         $Filter,
 
         [Parameter(ParameterSetName = 'Role', Mandatory)]
+        [ArgumentCompleter({
+            (Get-CCMRole).ForEach{
+                $_.id
+            }
+        })]
         [string]
         $Role
     )
@@ -29,26 +34,11 @@ function Get-CCMUser {
                 Role = if ($Role -as [int]) {
                     $Role
                 } else {
-                    $Roles = Invoke-CCMApi -Slug "Role/GetRoles" -Method "POST" -Body @{permissions = @()}
-                    $Roles.Where({$_.name -eq $Role}, 1).id
+                    (Get-CCMRole).Where({$_.name -eq $Role}, 1).id
                 }
             }
         }
 
-        $Result = Invoke-CCMApi @ApiArgs
-
-        switch ($PSCmdlet.ParameterSetName) {
-            "All" {
-                $Result.items
-            }
-            "Filter" {
-                $Result.items
-            }
-            "Role"{
-                $Result.items
-            }
-        }
-        
-
+        (Invoke-CCMApi @ApiArgs).items
     }#end process
 }#end function
