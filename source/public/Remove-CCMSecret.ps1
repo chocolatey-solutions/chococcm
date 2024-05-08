@@ -14,7 +14,7 @@ function Remove-CCMSecret {
                 $CompletionResults = (Get-CCMSecret).Name
 
                 if ($WordToComplete) {
-                    $CompletionResults.Where($_ -match "^$WordToComplete")
+                    $CompletionResults.Where{$_ -match "^$WordToComplete"}
                 }
                 else {
                     $CompletionResults
