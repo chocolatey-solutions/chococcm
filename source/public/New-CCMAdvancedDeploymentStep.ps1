@@ -1,4 +1,4 @@
-function New-AdvancedDeploymentStep {
+function New-CCMAdvancedDeploymentStep {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]

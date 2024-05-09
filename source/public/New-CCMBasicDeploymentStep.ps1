@@ -1,4 +1,4 @@
-function New-BasicDeploymentStep {
+function New-CCMBasicDeploymentStep {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
