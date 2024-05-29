@@ -27,7 +27,7 @@ function Set-CCMEncryptionPassphrase {
         $Settings.encryption.oldPassphrase = [System.Net.NetworkCredential]::new('old', $OldPassphrase).Password
         $Settings.encryption.passphrase = $NewPassphraseText
         $Settings.encryption.confirmPassphrase = $NewPassphraseText
-        
+
         #Push Updated values
         Invoke-CCMApi -Slug "TenantSettings/UpdateAllSettings" -Method "PUT" -Body $Settings
     }
