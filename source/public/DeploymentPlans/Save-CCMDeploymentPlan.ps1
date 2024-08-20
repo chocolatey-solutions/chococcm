@@ -26,7 +26,7 @@ function Save-CCMDeploymentPlan {
 
     process {
 
-        $Deployment = Get-CCMDeploymentPlan -Filter $DeploymentName
+        $Deployment = Get-CCMDeploymentPlan -Filter $DeploymentName | Where-Object {$_.isArchived -eq $false}
     
         if ($Deployment.count -gt 1) {
             Write-Host @"
@@ -36,11 +36,14 @@ Please select a deployment plan below:
 "@ -ForegroundColor Green
             $x = 1
             $Deployment | ForEach-Object {
-                "$x :$($_.Name)"
+                "$($x): $($_.Name)"
                 $x++
             }
             $choice = Read-Host "Selection"
             $Id = $Deployment[$($choice - 1)].id
+        }
+        else{
+            $Id = $Deployment.id
         }
 
         #Archive Deployment Plan
