@@ -6,7 +6,7 @@ function New-CCMDeploymentPlan {
         $PlanTitle,
 
         [parameter(Mandatory)]
-        [PSCustomObject]
+        [PSCustomObject[]]
         $Step,
     
         [parameter]
@@ -31,27 +31,30 @@ function New-CCMDeploymentPlan {
 
     process {
         
-        $body =@{
+        $body = @{
             name = $PlanTitle
         }
 
-        switch($PSCmdlet.ParameterSetName){
+        switch ($PSCmdlet.ParameterSetName) {
             "Schedule" {
                 $Date = Get-Date $StartTime -Format "yyyy-MM-ddTHH:mm:ss.fffZ"
-        
-        
-        
+                $body.add("scheduledDateTimeUtc", $Date)
+                if ($LastStartTime) {
+                    $Date = Get-Date $LastStartTime -Format "yyyy-MM-ddTHH:mm:ss.fffZ"
+                    $body.add("lastScheduledDateTimeUtc", $Date)
+                }    
+                if ($RepeatPeriod) {
+                    $body.add("repeatPeriod", $RepeatPeriod)
+                }
+                else {
+                    $body.add("repeatPeriod", "None")
+                }
+            }
         }
-        }
 
-
-
-
-        
         #CreateDeplyomentPlan
         $Deployment = Invoke-CCMApi -Slug "DeploymentPlans/CreateorEdit" -Method POST -Body $body
-
-#region Add Steps
+        #region Add Steps
         #Add a step to the plan for each deployment step
         $X = 1
 
@@ -105,7 +108,7 @@ function New-CCMDeploymentPlan {
             #Increment Plan Order
             $X++
         }
-#endregion
+        #endregion
 
         #RunNow or not?
         if ($RunNow) {
