@@ -1,5 +1,5 @@
 function New-CCMDeploymentPlan {
-    [Cmdletbinding()]
+    [Cmdletbinding(DefaultParameterSetName = "Default")]
     Param(
         [parameter(Mandatory)]
         [string]
@@ -11,16 +11,47 @@ function New-CCMDeploymentPlan {
     
         [parameter]
         [switch]
-        $RunNow
+        $RunNow,
+
+        [parameter(Mandatory, ParameterSetName = 'Schedule')]
+        [datetime]
+        $StartTime,
+
+        [parameter(ParameterSetName = 'Schedule')]
+        [datetime]
+        $LastStartTime,
+
+        [parameter(ParameterSetName = 'Schedule')]
+        [ValidateSet("None", "Daily", "Weekly", "EveryTwoWeeks", "EveryFourWeeks", "Monthly", "EveryTwoMonths", "Quarterly", "EverySixMonths", "Yearly")]
+        [string]
+        $RepeatPeriod = "None"
+
 
     )
 
     process {
-        #CreateDeplyomentPlan
-        $Deployment = Invoke-CCMApi -Slug "DeploymentPlans/CreateorEdit" -Method POST -Body @{
+        
+        $body =@{
             name = $PlanTitle
         }
 
+        switch($PSCmdlet.ParameterSetName){
+            "Schedule" {
+                $Date = Get-Date $StartTime -Format "yyyy-MM-ddTHH:mm:ss.fffZ"
+        
+        
+        
+        }
+        }
+
+
+
+
+        
+        #CreateDeplyomentPlan
+        $Deployment = Invoke-CCMApi -Slug "DeploymentPlans/CreateorEdit" -Method POST -Body $body
+
+#region Add Steps
         #Add a step to the plan for each deployment step
         $X = 1
 
@@ -74,6 +105,8 @@ function New-CCMDeploymentPlan {
             #Increment Plan Order
             $X++
         }
+#endregion
+
         #RunNow or not?
         if ($RunNow) {
             #Move Deployment Plan to Ready
