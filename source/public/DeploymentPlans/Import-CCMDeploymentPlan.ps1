@@ -6,11 +6,11 @@ function Import-CCMDeploymentPlan {
             Test-Path $_
         })]
         [string]
-        $PlanName
+        $PlanJson
     )
 
     process {
-        $Body = (Get-Content $PlanName -Raw) | ConvertFrom-Json -Depth 10
+        $Body = (Get-Content $PlanJson -Raw) | ConvertFrom-Json -Depth 10
         $null = Invoke-CCMApi -Slug '/DeploymentPlans/Import' -Method 'POST' -Body $Body
     }
 }
