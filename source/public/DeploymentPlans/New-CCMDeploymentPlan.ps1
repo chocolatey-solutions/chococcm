@@ -9,7 +9,7 @@ function New-CCMDeploymentPlan {
         [PSCustomObject[]]
         $Step,
     
-        [parameter]
+        [parameter()]
         [switch]
         $RunNow,
 
@@ -53,18 +53,19 @@ function New-CCMDeploymentPlan {
         }
 
         #CreateDeplyomentPlan
+        Write-Verbose 'Creating Deployment Plan'
         $Deployment = Invoke-CCMApi -Slug "DeploymentPlans/CreateorEdit" -Method POST -Body $body
         #region Add Steps
         #Add a step to the plan for each deployment step
         $X = 1
 
         foreach ($s in $step) {
-
             $groups = [System.Collections.Generic.List[hashtable]]::new()
             
             if ($s.type -eq 'Basic') {
                 #Fetch the group data for the Deployment.
                 #Get the ID of the group via CCM API
+                Write-Verbose "Adding step for $($s.Name)"
                 $s.TargetGroup | ForEach-Object {
                     $GroupData = Get-CCMGroup -Name $_
 
@@ -74,7 +75,7 @@ function New-CCMDeploymentPlan {
                 $null = Invoke-CCMApi -Method "Post" -Slug "DeploymentSteps/CreateorEdit" -Body @{
                     planOrder                      = $X
                     deploymentPlanId               = $Deployment.ID
-                    name                           = $s.StepTitle
+                    name                           = $s.Name
                     validExitCodes                 = "0, 1605, 1614, 1641, 3010"
                     executionTimeoutInSeconds      = 14400
                     machineContactTimeoutInMinutes = "0"
@@ -82,7 +83,7 @@ function New-CCMDeploymentPlan {
                     requireSuccessOnAllComputers   = $false
                     deploymentStepGroups           = @($groups)
                     # Syntax for basic Deployment Steps is "<ChocoCommand>|<PackageId>|<PackageVersion>|<PreRelease>"
-                    Script                         = '{0}|{1}|{2}|{3}' -f $s.Command, $s.PackageId, $s.PackageVersion, $s.PreRelease
+                    Script                         = '{0}|{1}|{2}|{3}' -f $s.Command, $s.PackageId, $s.PackageVersion, [bool]$s.PreRelease
                 }
             }
             else {
@@ -113,11 +114,13 @@ function New-CCMDeploymentPlan {
         #RunNow or not?
         if ($RunNow) {
             #Move Deployment Plan to Ready
+            Write-Verbose 'Getting Deployment ready to run'
             $null = Invoke-CCMApi -Method "POST" -Slug "DeploymentPlans/MoveToReady" -Body @{
                 id = $Deployment.Id
             }
 
             #Start Deployment Plan
+            Write-verbose 'Starting Deployment'
             $null = Invoke-CCMApi -Method "POST" -Slug "DeploymentPlans/Start" -Body @{
                 id = $Deployment.Id
             }

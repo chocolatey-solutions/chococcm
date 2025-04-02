@@ -25,7 +25,7 @@ function New-CCMBasicDeploymentStep {
         $PackageVersion,
 
         [Parameter()]
-        [string]
+        [switch]
         $Prerelease
     )
 
