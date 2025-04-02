@@ -19,8 +19,7 @@ function Invoke-CCMApi {
     )
     begin {
         if (-not $Script:CcmServerInfo) {
-            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance.'
-            Connect-CCMServer
+            Write-Warning 'You appear to be unconnected from your Chocolatey Central Management instance. Run Connect-CCMServer first.'
         }
     }
     end {
