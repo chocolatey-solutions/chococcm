@@ -13,7 +13,6 @@ function Remove-CCMGroup {
         if ($Id -and $PSCmdlet.ShouldProcess($(Get-Variable -Name $PSCmdlet.ParameterSetName -ValueOnly -ErrorAction SilentlyContinue), "Removing Group")) {
             try {
                 Invoke-CCMApi -Method 'DELETE' -Slug "Groups/Delete?id=$($Id)" -ErrorAction Stop
-                Write-Host "Removal of group '$(Get-Variable -Name $PSCmdlet.ParameterSetName -ValueOnly -ErrorAction SilentlyContinue)' succeeded." -ForegroundColor DarkGreen
             } catch {
                 throw
             }
