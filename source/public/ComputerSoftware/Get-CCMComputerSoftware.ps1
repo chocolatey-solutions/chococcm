@@ -7,7 +7,11 @@ function Get-CCMComputerSoftware {
 
         [parameter(Mandatory, ParameterSetName = "Software")]
         [string[]]
-        $SoftwareName
+        $SoftwareName,
+
+        [Parameter(Mandatory, ParameterSetName = 'PackageId')]
+        [String[]]
+        $PackageId
     )
     process {
         switch ($PSCmdlet.ParameterSetName) {
@@ -25,6 +29,16 @@ function Get-CCMComputerSoftware {
                         [ComputerSoftware[]](Invoke-CCMApi -Slug "/ComputerSoftware/GetAllBySoftwareId?softwareId=$($Version.id)")
                     }
                 }
+            }
+            'PackageId'{
+                $AllSoftware = Get-CCMSoftware
+                ForEach ($Package in $PackageId) {
+                    $SoftwareInfo = ($AllSoftware | Where-Object -Property packageId -eq $PackageId)
+                    foreach ($Version in $SoftwareInfo) {
+                        [ComputerSoftware[]](Invoke-CCMApi -Slug "/ComputerSoftware/GetAllBySoftwareId?softwareId=$($Version.id)")
+                    }
+                }
+
             }
         }
     }
