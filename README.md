@@ -34,7 +34,7 @@ A PowerShell module for interacting with the [Chocolatey Central Management (CCM
 
 ## Overview
 
-ChocoCCM wraps the Chocolatey Central Management HTTP API in idiomatic PowerShell cmdlets, letting you automate common CCM administration tasks such as:
+ChocoCCM wraps the Chocolatey Central Management HTTP API in idiomatic PowerShell functions, letting you automate common CCM administration tasks such as:
 
 - Querying computer inventory and the software installed on each machine
 - Managing computer groups and their membership
@@ -50,24 +50,16 @@ ChocoCCM wraps the Chocolatey Central Management HTTP API in idiomatic PowerShel
 | Requirement | Minimum version |
 |---|---|
 | PowerShell | 5.1 (Desktop) or 7+ (Core) |
-| Chocolatey Central Management | 0.4.0 or later |
+| Chocolatey Central Management | 0.15.0 or later |
 | PowerShell module: `Configuration` | (installed automatically as a dependency) |
 
 ---
 
 ## Installation
 
-```powershell
-Install-Module -Name ChocoCCM -Repository PSGallery
-```
-
-Or, if you are managing modules with a `RequiredModules.psd1` (e.g. via PSDepend), add:
-
-```powershell
-@{
-    ChocoCCM = 'latest'
-}
-```
+1. Clone this repository
+2. Run build.ps1
+3. Import the resultant module from the versioned output folder, i.e. `Import-Module .\0.0.1\ChocoCCM.psd1`
 
 ---
 
@@ -148,8 +140,8 @@ Start-CCMDeploymentPlan -Id 42
 
 | Command | Description |
 |---|---|
-| `New-CCMBasicDeploymentStep` | Add a basic deployment step to a plan |
-| `New-CCMAdvancedDeploymentStep` | Add an advanced deployment step to a plan |
+| `New-CCMBasicDeploymentStep` | Output a basic deployment step to a plan |
+| `New-CCMAdvancedDeploymentStep` | Output an advanced deployment step to a plan |
 
 ### Software
 
