@@ -1,30 +1,30 @@
 class Fact {
-    [string]$name
-    [string]$value
-    [string]$valueType
-    [string]$id
+    [string]$Name
+    [string]$Value
+    [string]$ValueType
+    [string]$Id
 }
 
 class FactGroup {
-    [int]$tenantId
-    [string]$name
-    [string]$categoryId
-    [Fact[]]$facts
-    [string]$id
+    [int]$TenantId
+    [string]$Name
+    [string]$CategoryId
+    [Fact[]]$Facts
+    [string]$Id
 }
 
 class FactCategory {
-    [string]$name
-    [string]$computerFactsId
-    [FactGroup[]]$groups
-    [Fact[]]$facts
-    [string]$id
+    [string]$Name
+    [string]$ComputerFactsId
+    [FactGroup[]]$Groups
+    [Fact[]]$Facts
+    [string]$Id
 }
 
 class ComputerFacts {
-    [int]$computerId
-    [string]$computerName
-    [datetime]$reportDateTimeUtc
-    [FactCategory[]]$categories
-    [string]$id
+    [int]$ComputerId
+    [string]$ComputerName
+    [datetime]$ReportDateTimeUtc
+    [FactCategory[]]$Categories
+    [string]$Id
 }
