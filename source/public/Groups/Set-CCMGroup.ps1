@@ -1,21 +1,27 @@
 # Do groups and computers of the group specified. As well as edit description.
 
-function Rename-CCMGroup {
+function Set-CCMGroup {
     <#
     .SYNOPSIS
-    Rename specific CCM group.
+    Edit a CCM group.
     
     .DESCRIPTION
-    Rename a CCM group that you input.
+    Edit a CCM group's description, computers, or child groups.
     
     .PARAMETER Name
     Name of the CCM group you want to edit.
     
-    .PARAMETER NewName
-    New name for the CCM group you are editing.
+    .PARAMETER Description
+    New description for the group.
+    
+    .PARAMETER Computer
+    Computers to include in the group.
+    
+    .PARAMETER Group
+    Child groups to include in the group.
     
     .EXAMPLE
-    Rename-CCMGroup -Name ComputerLab -NewName "Upstairs Computer Lab"
+    Set-CCMGroup -Name ComputerLab -Description "Updated description"
     #>
     [CmdletBinding()]
     param(
