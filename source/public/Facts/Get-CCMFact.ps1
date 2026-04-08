@@ -39,7 +39,7 @@ function Get-CCMFact {
     #>
     [CmdletBinding()]
     Param(
-        [Parameter()]
+        [Parameter(ValueFromPipeline)]
         [String[]]
         $Computername,
 
@@ -53,17 +53,18 @@ function Get-CCMFact {
     )
 
     begin {
-        $factCollection = [System.Collections.Generic.List[pscustomobject]]::new()
+        $factCollection = [System.Collections.Generic.List[ComputerFacts]]::new()
+        $allComputers = Get-CCMComputer
     }
 
     process {
-        $computers = Get-CCMComputer
-
-        if ($Computername) {
-            $computers = $computers | Where-Object { $_.Name -in $Computername }
+        $computersToProcess = if ($Computername) {
+            $allComputers | Where-Object { $_.Name -in $Computername }
+        } else {
+            $allComputers
         }
 
-        foreach ($computer in $computers) {
+        foreach ($computer in $computersToProcess) {
             $computerId = $computer.Id
 
             $queryParams = @{
@@ -79,8 +80,9 @@ function Get-CCMFact {
             }
             
             $QueryString = New-CCMQueryString $queryParams
-            $facts = Invoke-CCMApi "/Computers/GetFactsByComputerId?$QueryString"
-            $factCollection.Add($facts)
+            $factResult = [ComputerFacts](Invoke-CCMApi "/Computers/GetFactsByComputerId?$QueryString")
+            $factResult.computerName = $computer.Name
+            $factCollection.Add($factResult)
         }
     }
 
