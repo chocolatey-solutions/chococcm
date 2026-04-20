@@ -11,9 +11,8 @@ Function Get-CCMDeploymentPlan {
     )
 
     process { 
-        if ($PSBoundParameters) {
-            $QueryString = New-CCMQueryString -QueryParameter $PSBoundParameters
-            $Output = Invoke-CCMApi "/DeploymentPlans/GetAllPaged?$QueryString"
+        if ($PSBoundParameters.Count -gt 0) {
+            $Output = Invoke-CCMApi "/DeploymentPlans/GetAllPaged" -QueryParameters $PSBoundParameters
         }
         else {
             $Output = Invoke-CCMApi "/DeploymentPlans/GetAllPaged"

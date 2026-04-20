@@ -79,8 +79,7 @@ function Get-CCMFact {
                 $queryParams['ExcludeFactGroups'] = $ExcludeFactGroup
             }
             
-            $QueryString = New-CCMQueryString $queryParams
-            $factResult = [ComputerFacts](Invoke-CCMApi "/Computers/GetFactsByComputerId?$QueryString")
+            $factResult = [ComputerFacts](Invoke-CCMApi "/Computers/GetFactsByComputerId" -QueryParameters $queryParams)
             $factResult.computerName = $computer.Name
             $factCollection.Add($factResult)
         }
