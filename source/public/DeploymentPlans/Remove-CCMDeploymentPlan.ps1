@@ -52,8 +52,6 @@ Please select a deployment plan below:
         }
         Write-Verbose ($Body | ConvertTo-Json)
 
-        $QueryString = New-CCMQueryString -QueryParameter $Body
-
-        $null = Invoke-CCMApi -Method "DELETE" -Slug "DeploymentPlans/Delete?$QueryString" 
+        $null = Invoke-CCMApi -Method "DELETE" -Slug "DeploymentPlans/Delete" -QueryParameters $Body 
     }
 }
