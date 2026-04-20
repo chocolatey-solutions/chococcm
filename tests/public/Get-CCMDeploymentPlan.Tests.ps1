@@ -64,7 +64,7 @@ Describe "Get-CCMDeploymentPlan" {
 
         It "Includes the Filter in the query string" {
             Assert-MockCalled Invoke-CCMApi -ModuleName ChocoCCM -Scope Context -ParameterFilter {
-                $Slug -like '*Filter=Firefox*'
+                $QueryParameters -and $QueryParameters['Filter'] -eq 'Firefox'
             }
         }
     }
@@ -76,7 +76,7 @@ Describe "Get-CCMDeploymentPlan" {
 
         It "Includes IsArchived in the query string" {
             Assert-MockCalled Invoke-CCMApi -ModuleName ChocoCCM -Scope Context -ParameterFilter {
-                $Slug -like '*IsArchived=True*'
+                $QueryParameters -and $QueryParameters.ContainsKey('IsArchived')
             }
         }
     }

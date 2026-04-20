@@ -66,7 +66,7 @@ Describe "Get-CCMFact" {
 
         It "Calls the endpoint with the correct computer ID" {
             Assert-MockCalled Invoke-CCMApi -ModuleName ChocoCCM -Scope Context -ParameterFilter {
-                $Slug -like '*ComputerId=1*'
+                $QueryParameters -and $QueryParameters['ComputerId'] -eq 1
             }
         }
     }
@@ -90,7 +90,7 @@ Describe "Get-CCMFact" {
 
         It "Includes ExcludeCategories in the query string" {
             Assert-MockCalled Invoke-CCMApi -ModuleName ChocoCCM -Scope Context -ParameterFilter {
-                $Slug -like '*ExcludeCategories*'
+                $QueryParameters -and $QueryParameters.ContainsKey('ExcludeCategories')
             }
         }
     }
@@ -102,7 +102,7 @@ Describe "Get-CCMFact" {
 
         It "Includes ExcludeFactGroups in the query string" {
             Assert-MockCalled Invoke-CCMApi -ModuleName ChocoCCM -Scope Context -ParameterFilter {
-                $Slug -like '*ExcludeFactGroups*'
+                $QueryParameters -and $QueryParameters.ContainsKey('ExcludeFactGroups')
             }
         }
     }
