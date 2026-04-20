@@ -57,17 +57,34 @@ ChocoCCM wraps the Chocolatey Central Management HTTP API in idiomatic PowerShel
 
 ## Installation
 
-```powershell
-Install-Module -Name ChocoCCM -Repository PSGallery
-```
+ChocoCCM is built from source using [ModuleBuilder](https://github.com/PoshCode/ModuleBuilder). To build and import the module locally:
 
-Or, if you are managing modules with a `RequiredModules.psd1` (e.g. via PSDepend), add:
+1. **Clone the repository**
 
-```powershell
-@{
-    ChocoCCM = 'latest'
-}
-```
+   ```powershell
+   git clone https://github.com/chocolatey-solutions/chococcm.git
+   cd chococcm
+   ```
+
+2. **Install dependencies** (requires [PSDepend](https://github.com/RamblingCookieMonster/PSDepend))
+
+   ```powershell
+   .\Requirements.ps1
+   ```
+
+3. **Build the module**
+
+   ```powershell
+   .\Build.ps1
+   ```
+
+   The compiled module is written to a versioned subdirectory in the repository root (e.g. `.\0.0.1\`).
+
+4. **Import the module**
+
+   ```powershell
+   Import-Module .\0.0.1\ChocoCCM.psd1
+   ```
 
 ---
 
