@@ -1,8 +1,9 @@
 param(
+    [string]$ModulePath,
     [switch]$Integration
 )
 BeforeDiscovery {
-    Import-Module $PSScriptRoot\..\source\ChocoCCM.psm1
+    Import-Module $ModulePath -Force
 }
 Describe "Connect-CCMServer" {
     BeforeAll {
